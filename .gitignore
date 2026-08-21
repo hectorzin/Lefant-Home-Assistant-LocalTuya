@@ -1,0 +1,19 @@
+# Dependencias y cachés locales
+node_modules/
+__pycache__/
+*.pyc
+
+# Datos, APKs y binarios aportados localmente
+*.apk
+devices.json
+snapshot.json
+*.local.json
+*.secrets.json
+frida-server*
+frida/
+
+# Artefactos de herramientas y editor
+*.log
+hs_err_pid*.log
+.vscode/
+.idea/

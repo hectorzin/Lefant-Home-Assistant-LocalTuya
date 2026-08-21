@@ -1,0 +1,8 @@
+{
+  "name": "lefant-devicebean-exporter-agent",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "frida-java-bridge": "^7.0.0"
+  }
+}
