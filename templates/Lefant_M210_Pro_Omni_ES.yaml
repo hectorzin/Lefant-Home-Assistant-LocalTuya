@@ -28,7 +28,7 @@
     platform: vacuum
     icon: ''
 - switch:
-    friendly_name: Auto boost
+    friendly_name: Aumento en alfombras
     entity_category: None
     restore_on_reconnect: false
     is_passive_entity: false
