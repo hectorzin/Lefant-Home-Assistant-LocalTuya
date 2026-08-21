@@ -1,5 +1,7 @@
 # Lefant Home Assistant LocalTuya
 
+🌐 [English](README.md) | [Español](README.es.md)
+
 [![Platform](https://img.shields.io/badge/platform-Windows-0078D4)](https://www.microsoft.com/windows) [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](https://www.python.org/)
 
 > Extract Lefant Device ID and Local Key for Home Assistant LocalTuya integration.
