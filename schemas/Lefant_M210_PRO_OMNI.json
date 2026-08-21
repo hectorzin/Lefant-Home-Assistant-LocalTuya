@@ -1,0 +1,986 @@
+[
+  {
+    "code": "switch_go",
+    "iconname": "icon-power",
+    "id": 1,
+    "mode": "rw",
+    "name": "清扫开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "pause",
+    "iconname": "icon-dp_pause",
+    "id": 2,
+    "mode": "rw",
+    "name": "暂停/继续",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "switch_charge",
+    "iconname": "icon-a_power",
+    "id": 3,
+    "mode": "rw",
+    "name": "回充开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "mode",
+    "iconname": "icon-dp_mode",
+    "id": 4,
+    "mode": "rw",
+    "name": "工作模式",
+    "property": {
+      "range": [
+        "smart",
+        "chargego",
+        "zone",
+        "pose",
+        "fastmapping",
+        "CleanModeSectorbased"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "status",
+    "iconname": "icon-zhuangtai",
+    "id": 5,
+    "mode": "ro",
+    "name": "状态",
+    "property": {
+      "range": [
+        "standby",
+        "smart",
+        "zone_clean",
+        "part_clean",
+        "cleaning",
+        "paused",
+        "goto_pos",
+        "pos_arrived",
+        "pos_unarrive",
+        "goto_charge",
+        "charging",
+        "charge_done",
+        "sleep",
+        "relocating",
+        "relocating_recharge",
+        "recharing_paused",
+        "fastmaping",
+        "fastmaping_paused",
+        "dust_collection",
+        "wash_mop",
+        "goto_wash",
+        "wash_paused",
+        "drying",
+        "continuity_clear_charging",
+        "relocating_pause"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "customize_mode_switch",
+    "iconname": "icon-dp_power2",
+    "id": 6,
+    "mode": "rw",
+    "name": "重置地图",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "sweep_mop_mode",
+    "iconname": "icon-dp_mode",
+    "id": 7,
+    "mode": "rw",
+    "name": "请求数据",
+    "property": {
+      "range": [
+        "get_map",
+        "get_path",
+        "get_both"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "suction",
+    "iconname": "icon-Strong",
+    "id": 9,
+    "mode": "rw",
+    "name": "吸力选择",
+    "property": {
+      "range": [
+        "closed",
+        "gentle",
+        "normal",
+        "strong",
+        "superStrong"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "water_output",
+    "iconname": "icon-dp_water",
+    "id": 10,
+    "mode": "rw",
+    "name": "水量选择",
+    "property": {
+      "range": [
+        "closed",
+        "low",
+        "middle",
+        "high"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "auto_boost",
+    "iconname": "icon-dp_up",
+    "id": 14,
+    "mode": "rw",
+    "name": "地毯增压",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "break_clean",
+    "iconname": "icon-dp_wash",
+    "id": 15,
+    "mode": "rw",
+    "name": "断点续扫",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "clean_time",
+    "iconname": "icon-dp_time3",
+    "id": 16,
+    "mode": "ro",
+    "name": "清扫时间",
+    "property": {
+      "unit": "min",
+      "min": 0,
+      "max": 9999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "clean_area",
+    "iconname": "icon-icon-test10",
+    "id": 17,
+    "mode": "ro",
+    "name": "清扫面积",
+    "property": {
+      "unit": "㎡",
+      "min": 0,
+      "max": 9999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "battery_percentage",
+    "iconname": "icon-dp_battery",
+    "id": 23,
+    "mode": "ro",
+    "name": "剩余电量",
+    "property": {
+      "unit": "%",
+      "min": 0,
+      "max": 100,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "direction_control",
+    "iconname": "icon-dp_compass",
+    "id": 26,
+    "mode": "rw",
+    "name": "清扫方向",
+    "property": {
+      "range": [
+        "forward",
+        "backward",
+        "turn_left",
+        "turn_right",
+        "stop"
+      ],
+      "type": "enum"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "seek",
+    "iconname": "icon-dp_magnifier",
+    "id": 27,
+    "mode": "rw",
+    "name": "寻找机器人",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "total_error",
+    "iconname": "icon-dp_totalerror",
+    "id": 28,
+    "mode": "rw",
+    "name": "故障上报",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "forbidden_zone",
+    "id": 101,
+    "mode": "rw",
+    "name": "禁区信息获取",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "clean_zone",
+    "id": 102,
+    "mode": "rw",
+    "name": "划区信息获取",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "pos_clean",
+    "id": 103,
+    "mode": "rw",
+    "name": "指哪扫哪获取",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "all_zone",
+    "id": 104,
+    "mode": "rw",
+    "name": "禁区，划区，指哪扫哪状态获取",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "map_zoom_android",
+    "id": 105,
+    "mode": "rw",
+    "name": "地图比例_Android",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "map_zoom_ios",
+    "id": 106,
+    "mode": "rw",
+    "name": "地图比例_IOS",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "dev_log_show",
+    "id": 107,
+    "mode": "rw",
+    "name": "设备log显示",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "clean_zone_back",
+    "id": 108,
+    "mode": "rw",
+    "name": "退出划区清扫",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "pos_clean_back",
+    "id": 109,
+    "mode": "rw",
+    "name": "退出指哪扫哪",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "get_device_info",
+    "id": 110,
+    "mode": "rw",
+    "name": "获取设备信息",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "get_robot_log",
+    "id": 111,
+    "mode": "rw",
+    "name": "获取嵌入式日志",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "switch_save_map",
+    "id": 112,
+    "mode": "rw",
+    "name": "地图保存开关",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "command_trans",
+    "id": 113,
+    "mode": "rw",
+    "name": "指令传输",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "fault",
+    "id": 114,
+    "mode": "ro",
+    "name": "故障状态",
+    "property": {
+      "label": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29"
+      ],
+      "type": "bitmap",
+      "maxlen": 30
+    },
+    "scope": "fault",
+    "type": "obj"
+  },
+  {
+    "code": "voice_check",
+    "id": 120,
+    "mode": "rw",
+    "name": "音量调节",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "robot_reboot",
+    "id": 121,
+    "mode": "rw",
+    "name": "死机标志位",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "save_mapping",
+    "id": 122,
+    "mode": "rw",
+    "name": "地图保存标志位",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "disturb_set",
+    "id": 123,
+    "mode": "rw",
+    "name": "勿扰设置",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "appointment_clean",
+    "id": 124,
+    "mode": "rw",
+    "name": "预约清扫",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "is_charging",
+    "id": 125,
+    "mode": "rw",
+    "name": "在桩标志",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "save_map_result",
+    "id": 126,
+    "mode": "rw",
+    "name": "地图保存结果",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "personalized_cleaning",
+    "id": 150,
+    "mode": "rw",
+    "name": "个性化清扫",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "cleaning_custom_switch",
+    "id": 151,
+    "mode": "rw",
+    "name": "清扫定制开关",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "cleaning_sequence",
+    "id": 152,
+    "mode": "rw",
+    "name": "清扫顺序",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "device_judgment_savemap",
+    "id": 153,
+    "mode": "rw",
+    "name": "设备判断存图",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "time_taask",
+    "id": 154,
+    "mode": "rw",
+    "name": "本地定时预约",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "device_mac_address",
+    "id": 155,
+    "mode": "rw",
+    "name": "设备Mac地址",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved6",
+    "id": 156,
+    "mode": "rw",
+    "name": "勿扰",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved7",
+    "id": 157,
+    "mode": "rw",
+    "name": "拖地开关",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved8",
+    "id": 158,
+    "mode": "rw",
+    "name": "基站实时状态和控制",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved9",
+    "id": 159,
+    "mode": "rw",
+    "name": "基站清洁选项",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved10",
+    "id": 160,
+    "mode": "rw",
+    "name": "基站清洗异常报警",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved11",
+    "id": 161,
+    "mode": "rw",
+    "name": "预留11",
+    "property": {
+      "unit": "",
+      "min": 0,
+      "max": 99999999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved12",
+    "id": 162,
+    "mode": "rw",
+    "name": "主界面地图显示类型",
+    "property": {
+      "unit": "",
+      "min": 0,
+      "max": 99999999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved13",
+    "extContent": "{\"trigger\":\"direct\"}",
+    "id": 163,
+    "mode": "rw",
+    "name": "启动清扫方式",
+    "property": {
+      "unit": "",
+      "min": 0,
+      "max": 99999999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "trigger": "direct",
+    "type": "obj"
+  },
+  {
+    "code": "reserved14",
+    "id": 164,
+    "mode": "rw",
+    "name": "报警故障码",
+    "property": {
+      "unit": "",
+      "min": 0,
+      "max": 99999999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved15",
+    "id": 165,
+    "mode": "rw",
+    "name": "基站通讯异常",
+    "property": {
+      "unit": "",
+      "min": 0,
+      "max": 99999999,
+      "scale": 0,
+      "step": 1,
+      "type": "value"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved16",
+    "id": 166,
+    "mode": "rw",
+    "name": "预留16",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved17",
+    "id": 167,
+    "mode": "rw",
+    "name": "预留17",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved18",
+    "id": 168,
+    "mode": "rw",
+    "name": "预留18",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved19",
+    "id": 169,
+    "mode": "rw",
+    "name": "预留19",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved20",
+    "id": 170,
+    "mode": "rw",
+    "name": "预留20",
+    "property": {
+      "type": "string",
+      "maxlen": 255
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved21",
+    "id": 171,
+    "mode": "rw",
+    "name": "拖布安装状态",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved22",
+    "id": 172,
+    "mode": "rw",
+    "name": "地毯检测开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved23",
+    "id": 173,
+    "mode": "rw",
+    "name": "关闭地毯检测开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved24",
+    "id": 174,
+    "mode": "rw",
+    "name": "智能感应清扫开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved25",
+    "id": 175,
+    "mode": "rw",
+    "name": "风干开关",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved26",
+    "id": 176,
+    "mode": "rw",
+    "name": "预留26",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved27",
+    "id": 177,
+    "mode": "rw",
+    "name": "预留27",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved28",
+    "id": 178,
+    "mode": "rw",
+    "name": "预留28",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved29",
+    "id": 179,
+    "mode": "rw",
+    "name": "预留29",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved30",
+    "id": 180,
+    "mode": "rw",
+    "name": "预留30",
+    "property": {
+      "type": "bool"
+    },
+    "type": "obj"
+  },
+  {
+    "code": "reserved31",
+    "id": 181,
+    "mode": "rw",
+    "name": "新个性化清扫",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved32",
+    "id": 182,
+    "mode": "rw",
+    "name": "回充异常设备信息",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved33",
+    "id": 183,
+    "mode": "rw",
+    "name": "个性化清扫和房间命名",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved34",
+    "id": 184,
+    "mode": "rw",
+    "name": "多地图房间命名数据",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved35",
+    "id": 185,
+    "mode": "rw",
+    "name": "预留35",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved36",
+    "id": 186,
+    "mode": "rw",
+    "name": "预留36",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved37",
+    "id": 187,
+    "mode": "rw",
+    "name": "预留37",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved38",
+    "id": 188,
+    "mode": "rw",
+    "name": "预留38",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved39",
+    "id": 189,
+    "mode": "rw",
+    "name": "预留39",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  },
+  {
+    "code": "reserved40",
+    "id": 190,
+    "mode": "rw",
+    "name": "异常状态排查",
+    "property": {
+      "type": "raw",
+      "maxlen": 128
+    },
+    "type": "raw"
+  }
+]

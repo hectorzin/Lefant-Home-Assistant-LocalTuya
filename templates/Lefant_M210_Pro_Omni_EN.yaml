@@ -1,3 +1,11 @@
+# Lefant M210 PRO OMNI
+#
+# Recommended manual/additional DPS in LocalTuya:
+# 2,27,120,158,159,160
+#
+# Some of these DPs may not be advertised in the normal status response,
+# but are required for command-only / RAW features.
+
 - vacuum:
     friendly_name: Lefant M210 Pro Omni
     entity_category: None
@@ -28,7 +36,7 @@
     platform: switch
     icon: ''
 - sensor:
-    friendly_name: Batería
+    friendly_name: Battery
     entity_category: diagnostic
     unit_of_measurement: '%'
     device_class: battery
@@ -37,7 +45,7 @@
     platform: sensor
     icon: ''
 - sensor:
-    friendly_name: Tiempo de limpieza
+    friendly_name: Cleaning time
     entity_category: None
     unit_of_measurement: min
     state_class: measurement
@@ -46,7 +54,7 @@
     icon: ''
 
 - sensor:
-    friendly_name: Área limpiada
+    friendly_name: Cleaned area
     entity_category: None
     unit_of_measurement: m²
     device_class: area
@@ -55,7 +63,7 @@
     platform: sensor
     icon: ''    
 - binary_sensor:
-    friendly_name: Cargando
+    friendly_name: Charging
     entity_category: diagnostic
     state_on: true,1,pir_on
     device_class: battery_charging
@@ -64,32 +72,32 @@
     platform: binary_sensor
     icon: ''
 - sensor:
-    friendly_name: Modo
+    friendly_name: Mode
     entity_category: diagnostic
     id: '4'
     platform: sensor
     icon: ''
 - button:
-    friendly_name: Volver a la base
+    friendly_name: Return to dock
     entity_category: None
     id: '3'
     platform: button
     icon: ''
 - select:
-    friendly_name: Flujo de agua
+    friendly_name: Water flow
     entity_category: None
     select_options:
-      closed: Cerrado
-      low: Bajo
-      middle: Medio
-      high: Alto
+      closed: Off
+      low: Low
+      middle: Medium
+      high: High
     restore_on_reconnect: false
     is_passive_entity: false
     id: '10'
     platform: select
     icon: ''
 - switch:
-    friendly_name: Recargar y reanudar
+    friendly_name: Recharge and resume
     entity_category: None
     restore_on_reconnect: false
     is_passive_entity: false
@@ -97,10 +105,21 @@
     platform: switch
     icon: ''
 - switch:
-    friendly_name: Evitar alfombras
+    friendly_name: Avoid carpets
     entity_category: None
     restore_on_reconnect: false
     is_passive_entity: false
     id: '172'
     platform: switch
+    icon: ''
+- select:
+    friendly_name: Mop washing
+    entity_category: None
+    select_options:
+      qgACAAIC: Start washing
+      qgACAAUF: Stop washing
+    restore_on_reconnect: false
+    is_passive_entity: false
+    id: '158'
+    platform: select
     icon: ''
