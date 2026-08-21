@@ -8,20 +8,41 @@ This community tool helps owners of selected Lefant robots obtain the local conn
 
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [What this project does](#what-this-project-does)
 - [Validated setup](#validated-setup)
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Lefant APK](#lefant-apk)
+- [Installing the Lefant app](#installing-the-lefant-app)
 - [Frida Server](#frida-server)
 - [Usage](#usage)
 - [devices.json](#devicesjson)
 - [Home Assistant and LocalTuya](#home-assistant-and-localtuya)
+- [Ready-to-use LocalTuya templates](#ready-to-use-localtuya-templates)
 - [Lefant M210 Pro Omni](#lefant-m210-pro-omni)
+- [Contributing a Lefant model template](#contributing-a-lefant-model-template)
 - [Troubleshooting](#troubleshooting)
 - [Security and privacy](#security-and-privacy)
 - [Legal and disclaimer](#legal-and-disclaimer)
+
+## Quick Start
+
+1. Install Python, Node.js/npm, Android Studio/ADB, and Frida.
+2. Create or use an Android emulator that supports the `adb root` workflow required by the launcher.
+3. Install the official Lefant app: preferably from Google Play when it is available in that emulator, or optionally from local APK files that you supply.
+4. Download and place a matching `frida-server` binary locally.
+5. Run:
+
+   ```powershell
+   .\lefant_launcher.ps1
+   ```
+
+6. Log in to Lefant manually if required and load the device list.
+7. Press ENTER when prompted.
+8. Use the extracted Device ID and Local Key in LocalTuya.
+
+APK files are optional; see [Installing the Lefant app](#installing-the-lefant-app) for the supported local paths.
 
 ## What this project does
 
@@ -103,9 +124,11 @@ The emulator must support `adb root`, because the launcher places and starts `fr
 
 5. Download a `frida-server` matching both the installed Frida client version and the emulator ABI. Do not add it to Git.
 
-## Lefant APK
+## Installing the Lefant app
 
-The Lefant APK is **not** included in this repository. You may install the official Lefant app manually in the emulator, or supply APK files locally for the launcher.
+Supplying APK files is **optional**. If the emulator has Google Play available, the easiest route is to install the official Lefant app directly from Google Play, then launch it and log in normally.
+
+If Google Play is not available, or you prefer a local installation, the launcher supports APK files that you supply. The Lefant app and APK files are not included in this repository. Google Play availability alone is not enough: the emulator must still support the `adb root` workflow required by the launcher.
 
 The launcher checks these base APK locations:
 
@@ -124,7 +147,7 @@ apk/
   split_config.xxhdpi.apk
 ```
 
-The launcher detects `split_config*.apk` files and uses `adb install-multiple`. APK files are ignored by Git and must be supplied by you. This project does not link to unofficial APK download sites.
+The launcher detects `split_config*.apk` files and uses `adb install-multiple`. These files are optional, ignored by Git, and supplied by you. This repository does not distribute APKs and does not link to unofficial APK download sites.
 
 ## Frida Server
 
@@ -226,9 +249,56 @@ Provide the values appropriate to your robot:
 
 Find the IP address through router DHCP leases, LocalTuya discovery, or optional [TinyTuya discovery](https://github.com/jasonacox/tinytuya). TinyTuya is not required.
 
+## Ready-to-use LocalTuya templates
+
+This repository includes reusable LocalTuya templates for these Lefant models:
+
+- `Lefant_A1_Pro.yaml`
+- `Lefant_M210_Pro_Omni.yaml`
+
+Detailed M210 Pro Omni documentation appears below. The other included templates can be used directly even though they do not yet have their own dedicated section.
+
+Copy the relevant file from this repository's `templates/` directory into the LocalTuya templates directory in your Home Assistant configuration:
+
+```text
+/config/custom_components/localtuya/templates/
+```
+
+When working relative to the Home Assistant configuration directory, the same location is:
+
+```text
+custom_components/localtuya/templates/
+```
+
+Then add the device in LocalTuya. During the **Add new device** flow, select **Use saved template**; LocalTuya lists the templates stored in that directory at that step. Restart Home Assistant after copying a template if it is not listed.
+
+Templates are model-specific. Verify the available DPs before applying one to a different model, and select the protocol version that matches the device: Tuya protocol versions are not universal across Lefant models.
+
 ## Lefant M210 Pro Omni
 
-The following datapoints are known from the validated M210 Pro Omni setup. They are model-specific and should not be treated as a universal Lefant mapping.
+The following setup is validated for the Lefant M210 Pro Omni using Tuya protocol `3.5`. It is model-specific and should not be treated as a universal Lefant mapping.
+
+Configure the vacuum entity with:
+
+- Power DP: `1`
+- Pause DP: `2`
+- Mode DP: `4`
+- Status DP: `5`
+- Fan speed DP: `9`
+- Clean time DP: `16`
+- Clean area DP: `17`
+- Locate DP: `27`
+
+Validated mode values are `smart`, `chargego`, `zone`, and `pose`. Validated fan speed values are `gentle`, `normal`, and `strong`.
+
+Use these state groups for the vacuum entity:
+
+| State | Values |
+| --- | --- |
+| Idle | `standby`, `sleep`, `charge_done` |
+| Docked | `charging`, `charge_done`, `sleep` |
+| Returning | `goto_charge` |
+| Paused | `paused` |
 
 | DP | Known name | Suggested LocalTuya use |
 | --- | --- | --- |
@@ -239,14 +309,22 @@ The following datapoints are known from the validated M210 Pro Omni setup. They 
 | 5 | `status` | Read-only vacuum status; may report `goto_charge` |
 | 9 | `suction` | Vacuum fan speed |
 | 10 | `water_output` | Known DP; behavior not documented here |
-| 14 | `auto_boost` | Switch: Auto Boost |
-| 15 | `break_clean` | Sensor or binary sensor: cleaning interruption |
+| 14 | `auto_boost` | Separate switch |
+| 15 | `break_clean` | Separate entity; the included template uses a switch. Validate its behavior before representing it as a diagnostic or binary sensor |
 | 16 | `clean_time` | Sensor: clean time |
 | 17 | `clean_area` | Sensor: clean area |
-| 23 | `battery_percentage` | Sensor: battery |
+| 23 | `battery_percentage` | Separate battery sensor (`%`) |
 | 27 | `seek` | Vacuum locate |
 
 For this model, use DP 3 (`switch_charge = true`) for the normal Home Assistant **Return to dock** action. Do not substitute `mode=chargego` for that action. DP 5 is status/read-only and can report `goto_charge` while the robot returns to its dock.
+
+## Contributing a Lefant model template
+
+If another Lefant model works with LocalTuya, you can export or prepare its configuration, remove sensitive information, add a template under `templates/`, and open a Pull Request.
+
+Please include the exact Lefant model, tested Tuya protocol version, tested Lefant app version (if known), DP mapping, confirmation that basic controls work, and any model-specific caveats.
+
+Do not include a `local_key`, real `device_id`, private IP address, account data, or other personal data in a template, example, issue, or Pull Request.
 
 ## Troubleshooting
 
@@ -255,7 +333,7 @@ For this model, use DP 3 (`switch_charge = true`) for the normal Home Assistant 
 | ADB was not found | Install Platform Tools, add it to `PATH`, or use `-Adb`. |
 | No emulator detected | Check the AVD name, use `-Avd`, and wait for `adb devices` to show `device`. |
 | `adb root` is unsupported | Use an emulator/system image that allows `adb root`; the launcher cannot deploy the server otherwise. |
-| Lefant APK was not found | Provide `lefant.apk` in a supported location or install the official app manually. |
+| Lefant is not installed | Install it from Google Play if it is available in the emulator, install it manually, or use optional local APK files in a supported location. |
 | Split installation fails | Keep the base APK and all available `split_config*.apk` files together. |
 | Frida client/server mismatch | Download the server matching the Frida client version and emulator ABI. |
 | `frida-server` is not running | Check `adb root`, the binary path, ABI, and version. |
