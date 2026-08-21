@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import shutil
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from threading import Event
 from typing import Any
@@ -160,8 +162,8 @@ def extract(serial: str, pid: int, address: str | None, timeout: float) -> list[
                         "name": str(payload.get("name", "")),
                         "device_id": did,
                         "local_key": str(payload.get("local_key", "")),
-                        "mac": str(payload.get("mac", "")),
-                        "ip": str(payload.get("ip", "")),
+                        "mac": normalize_mac(payload.get("mac", "")),
+                        "lan_ip": "",
                     }
                 elif payload.get("type") == "error":
                     errors.append(str(payload.get("error")))
@@ -177,6 +179,208 @@ def extract(serial: str, pid: int, address: str | None, timeout: float) -> list[
     except ToolError: raise
     except Exception as exc: raise ToolError(f"Could not attach Frida to PID {pid}: {exc}") from exc
     return sorted(records.values(), key=lambda item: (item["name"].casefold(), item["device_id"]))
+
+
+def normalize_mac(value: Any) -> str:
+    """Normalize a DeviceBean MAC to AA:BB:CC:DD:EE:FF when the value is recognizable."""
+    try:
+        raw = str(value or "").strip()
+        if not raw:
+            return ""
+        cleaned = "".join(ch for ch in raw if ch not in ":-")
+        if len(cleaned) == 12 and all(ch in "0123456789abcdefABCDEF" for ch in cleaned):
+            hexed = cleaned.upper()
+            return ":".join(hexed[i : i + 2] for i in range(0, 12, 2))
+        return raw
+    except Exception:
+        return ""
+
+
+NEIGHBOR_STATE_PRIORITY = {
+    "reachable": 0,
+    "stale": 1,
+    "delay": 2,
+    "probe": 3,
+    "permanent": 4,
+}
+SKIPPED_NEIGHBOR_STATES = {"incomplete", "unreachable"}
+POWERSHELL_NEIGHBORS = (
+    "Get-NetNeighbor -AddressFamily IPv4 | "
+    "Select-Object IPAddress, LinkLayerAddress, @{n='State';e={$_.State.ToString()}} | "
+    "ConvertTo-Json -Compress"
+)
+
+
+def mac_lookup_key(value: Any) -> str:
+    """Normalize a MAC so ':' and '-' compare as the same 12-character hex key."""
+    cleaned = "".join(ch for ch in str(value or "") if ch not in ":-").upper()
+    if len(cleaned) == 12 and all(ch in "0123456789ABCDEF" for ch in cleaned):
+        return cleaned
+    return ""
+
+
+def is_usable_lan_ipv4(value: str) -> bool:
+    try:
+        addr = ipaddress.IPv4Address(value)
+    except ValueError:
+        return False
+    if addr.is_unspecified or addr.is_multicast or addr.is_loopback or addr.is_link_local or addr.is_reserved:
+        return False
+    return value != "255.255.255.255"
+
+
+def _neighbor_field(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, dict):
+        for key in ("IPAddress", "value", "Address"):
+            if key in value:
+                return str(value[key]).strip()
+        return ""
+    return str(value).strip()
+
+
+def read_windows_ipv4_neighbors() -> list[dict[str, str]] | None:
+    """Read the local IPv4 neighbor/ARP table. Returns None if the lookup itself failed."""
+    if sys.platform != "win32":
+        return []
+    powershell = shutil.which("powershell.exe") or shutil.which("powershell")
+    if not powershell:
+        print("Warning: PowerShell was not found; Windows neighbor fallback for lan_ip was skipped.", file=sys.stderr)
+        return None
+    try:
+        result = subprocess.run(
+            [powershell, "-NoProfile", "-NonInteractive", "-Command", POWERSHELL_NEIGHBORS],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=15,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"Warning: Windows neighbor table lookup failed; lan_ip may stay empty. ({exc})", file=sys.stderr)
+        return None
+    if result.returncode:
+        detail = (result.stderr or result.stdout or "Get-NetNeighbor failed").strip()
+        print(f"Warning: Windows neighbor table lookup failed; lan_ip may stay empty. ({detail})", file=sys.stderr)
+        return None
+    raw = (result.stdout or "").strip().lstrip("\ufeff")
+    if not raw or raw in {"null", "[]"}:
+        return []
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        print("Warning: Windows neighbor table lookup returned unreadable data; lan_ip may stay empty.", file=sys.stderr)
+        return None
+    if isinstance(parsed, dict):
+        parsed = [parsed]
+    if not isinstance(parsed, list):
+        return []
+    neighbors: list[dict[str, str]] = []
+    for entry in parsed:
+        if not isinstance(entry, dict):
+            continue
+        ip = _neighbor_field(entry.get("IPAddress"))
+        mac = mac_lookup_key(entry.get("LinkLayerAddress"))
+        state = _neighbor_field(entry.get("State"))
+        if ip and mac and mac != "000000000000":
+            neighbors.append({"ip": ip, "mac": mac, "state": state})
+    return neighbors
+
+
+def match_neighbor_ip(mac: str, neighbors: list[dict[str, str]]) -> str:
+    wanted = mac_lookup_key(mac)
+    if not wanted:
+        return ""
+    ranked: list[tuple[int, str]] = []
+    for entry in neighbors:
+        if entry["mac"] != wanted:
+            continue
+        if not is_usable_lan_ipv4(entry["ip"]):
+            continue
+        state = entry["state"].casefold()
+        if state in SKIPPED_NEIGHBOR_STATES:
+            continue
+        ranked.append((NEIGHBOR_STATE_PRIORITY.get(state, 50), entry["ip"]))
+    if not ranked:
+        return ""
+    ranked.sort(key=lambda item: item[0])
+    return ranked[0][1]
+
+
+def discover_lan_ips(device_ids: list[str]) -> dict[str, str]:
+    """Fill LAN IPs from a TinyTuya UDP broadcast scan when the optional module is installed."""
+    ips = {device_id: "" for device_id in device_ids}
+    if not device_ids:
+        return ips
+    try:
+        import tinytuya  # type: ignore
+    except ImportError:
+        print(
+            "Warning: TinyTuya is not installed; skipping Tuya LAN broadcast. Optional: py -m pip install tinytuya",
+            file=sys.stderr,
+        )
+        return ips
+
+    result: dict[str, Any] = {"found": None, "error": None}
+
+    def run_scan() -> None:
+        try:
+            result["found"] = tinytuya.deviceScan(
+                verbose=False, maxretry=15, color=False, poll=False, forcescan=False
+            )
+        except TypeError:
+            try:
+                result["found"] = tinytuya.deviceScan(False, 15, False, False, False)
+            except Exception as exc:
+                result["error"] = exc
+        except Exception as exc:
+            result["error"] = exc
+
+    worker = threading.Thread(target=run_scan, daemon=True)
+    worker.start()
+    worker.join(20)
+    if worker.is_alive():
+        print("Warning: TinyTuya LAN discovery timed out; skipping Tuya LAN broadcast.", file=sys.stderr)
+        return ips
+    if result["error"] is not None:
+        print(
+            f"Warning: TinyTuya LAN discovery failed; skipping Tuya LAN broadcast. ({result['error']})",
+            file=sys.stderr,
+        )
+        return ips
+    found = result["found"]
+    if not isinstance(found, dict):
+        print("Warning: TinyTuya LAN discovery returned no usable results; skipping Tuya LAN broadcast.", file=sys.stderr)
+        return ips
+
+    by_id: dict[str, str] = {}
+    for ip, info in found.items():
+        if not isinstance(info, dict):
+            continue
+        gw_id = str(info.get("gwId") or info.get("id") or "")
+        lan_ip = str(info.get("ip") or ip or "").strip()
+        if gw_id and lan_ip:
+            by_id[gw_id] = lan_ip
+    for device_id in device_ids:
+        ips[device_id] = by_id.get(device_id, "")
+    return ips
+
+
+def fill_lan_ips(records: list[dict[str, str]]) -> None:
+    """Prefer TinyTuya Device ID matches, then Windows IPv4 neighbor/ARP lookup by MAC."""
+    by_id = discover_lan_ips([item["device_id"] for item in records])
+    for item in records:
+        item["lan_ip"] = by_id.get(item["device_id"], "")
+    missing = [item for item in records if not item.get("lan_ip") and item.get("mac")]
+    if not missing:
+        return
+    neighbors = read_windows_ipv4_neighbors()
+    if not neighbors:
+        return
+    for item in missing:
+        item["lan_ip"] = match_neighbor_ip(item["mac"], neighbors)
 
 
 def masked(key: str) -> str:
@@ -201,12 +405,14 @@ def main() -> int:
         print(f"Connected to {serial}; official Lefant is running (PID {pid}).")
         records = extract(serial, pid, args.frida_address, args.timeout)
         if not records: raise ToolError("No DeviceBean with device_id and local_key was found. Open your device list and try again.")
+        fill_lan_ips(records)
         output = Path(args.output).resolve(); output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(records, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print(f"Exported {len(records)} owned device(s) to {output}")
         for item in records:
             key = item["local_key"] if args.show_key else masked(item["local_key"])
-            print(f"- {item['name'] or '(unnamed)'} | {item['device_id']} | key={key}")
+            lan_ip = item.get("lan_ip") or "(none)"
+            print(f"- {item['name'] or '(unnamed)'} | {item['device_id']} | key={key} | lan_ip={lan_ip}")
         return 0
     except ToolError as exc:
         print(f"Error: {exc}", file=sys.stderr); return 1

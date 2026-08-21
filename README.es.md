@@ -116,6 +116,12 @@ El emulador debe ser compatible con `adb root`, ya que el launcher coloca e inic
    py -m pip install -r requirements.txt
    ```
 
+   Opcionalmente, instala [TinyTuya](https://github.com/jasonacox/tinytuya) para rellenar `lan_ip` a partir de los broadcasts Tuya en la LAN. No es necesario para extraer el Device ID, la Local Key ni la MAC:
+
+   ```powershell
+   py -m pip install tinytuya
+   ```
+
 3. Instala las dependencias de Node:
 
    ```powershell
@@ -190,6 +196,9 @@ El launcher realiza automáticamente lo siguiente:
 4. Comprueba si Lefant está instalada y, opcionalmente, instala un APK aportado por el usuario.
 5. Abre la aplicación oficial Lefant.
 6. Permite iniciar sesión manualmente si es necesario y esperar a que se cargue la lista de dispositivos.
+
+Mantén Lefant en la pantalla principal donde se muestran todos los dispositivos y, si es posible, asegúrate de que el dispositivo objetivo esté activo/despierto. El extractor enumera instancias `DeviceBean` vivas cargadas actualmente en memoria, por lo que algunos dispositivos pueden no aparecer mientras están en reposo o si la app está en otra pantalla.
+
 7. Prepara y verifica `frida-server`.
 8. Conecta Frida a Lefant, extrae los datos de `DeviceBean` y escribe `devices.json`.
 
@@ -224,16 +233,16 @@ Ejemplo con valores ficticios seguros:
     "name": "Robot Vacuum",
     "device_id": "xxxxxxxxxxxxxxxxxxxxxx",
     "local_key": "xxxxxxxxxxxxxxxx",
-    "mac": "e82f126407d4",
-    "ip": "192.168.1.123"
+    "mac": "E8:2F:12:64:07:D4",
+    "lan_ip": "192.168.1.123"
   }
 ]
 ```
 
 - El Device ID procede del `DeviceBean` de Lefant/ThingClips.
 - La Local Key es material sensible utilizado para la autenticación local.
-- La dirección MAC se extrae del `DeviceBean` cuando ese valor está disponible. Se escribe tal cual la devuelve el getter y puede quedar vacía en algunos modelos.
-- La IP se extrae de `DeviceBean.getIp()` cuando ese valor está disponible. Se escribe tal cual la devuelve el getter y puede quedar vacía o desactualizada; no se asume que sea una dirección LAN fiable. Si falta o está desfasada, la IP puede obtenerse desde las concesiones DHCP del router, el descubrimiento de LocalTuya o TinyTuya.
+- La dirección MAC se extrae de `DeviceBean.getMac()` cuando ese valor está disponible. Es un metadato opcional, no es necesario para emitir un dispositivo y no está garantizada en todos los modelos Lefant. Los valores reconocibles se normalizan a `XX:XX:XX:XX:XX:XX`.
+- `lan_ip` es la dirección LAN del dispositivo. Primero, si TinyTuya está instalado, el exportador hace un único escaneo por broadcast UDP (`tinytuya.deviceScan` con `poll=False` y `forcescan=False`) y cruza por Device ID / `gwId`. Si esa IP sigue vacía y hay MAC, en Windows consulta la tabla local de vecinos/ARP IPv4 (`Get-NetNeighbor`) para esa MAC. No procede de `DeviceBean.getIp()`, no hace ping sweep de la subred y no cambia el emparejamiento de Lefant. `lan_ip` puede quedar vacío si TinyTuya no está, el dispositivo no anuncia o este PC todavía no ha visto esa MAC.
 - `devices.json` está ignorado por Git.
 - No publiques Local Keys ni Device IDs privados innecesariamente.
 
@@ -255,7 +264,7 @@ Introduce los valores correspondientes a tu robot:
 - Local Key
 - Versión del protocolo
 
-Puedes encontrar la dirección IP mediante las concesiones DHCP del router, el descubrimiento de LocalTuya o, de forma opcional, [TinyTuya](https://github.com/jasonacox/tinytuya). TinyTuya no es obligatorio.
+Puedes usar `lan_ip` de `devices.json` cuando el broadcast de TinyTuya o el fallback de vecinos/ARP de Windows haya funcionado. Si no, usa las concesiones DHCP del router, el descubrimiento de LocalTuya o, de forma opcional, [TinyTuya](https://github.com/jasonacox/tinytuya). TinyTuya no es obligatorio.
 
 ## Templates de LocalTuya listos para usar
 
@@ -347,6 +356,7 @@ No incluyas una `local_key`, un `device_id` real, una dirección IP privada, dat
 | `frida-server` no se está ejecutando | Comprueba `adb root`, la ruta del binario, la ABI y la versión. |
 | No se puede conectar Frida a Lefant | Abre la aplicación oficial, comprueba que esté ejecutándose y que la verificación de Frida haya finalizado correctamente. |
 | No se encuentra ningún `DeviceBean` | Carga completamente la lista de dispositivos de Lefant y vuelve a intentarlo. |
+| El dispositivo no aparece en `devices.json` | Vuelve a la pantalla principal de Lefant donde se muestran todos los dispositivos y, si es posible, asegúrate de que el dispositivo esté activo/despierto. El extractor enumera objetos `DeviceBean` vivos que estén cargados en memoria, por lo que algunos dispositivos pueden no aparecer mientras están en reposo o si la app está en otra pantalla. |
 | Hay varios dispositivos ADB | Utiliza `-Serial emulator-XXXX`. |
 | No aparece `devices.json` | La extracción no encontró un DeviceBean completo; revisa la lista de dispositivos y los errores anteriores. |
 | Advertencia sobre la versión de Lefant | La versión validada de la aplicación es `3.3.25`; otras versiones pueden funcionar, pero no están validadas. |

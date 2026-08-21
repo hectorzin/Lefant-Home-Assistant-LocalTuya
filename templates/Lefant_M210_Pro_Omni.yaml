@@ -2,7 +2,7 @@
     friendly_name: Lefant M210 Pro Omni
     entity_category: None
     powergo_dp: '1'
-    idle_status_value: standby,sleep,charge_done
+    idle_status_value: standby,sleep,charge_done,wash_mop,drying
     docked_status_value: charging,charge_done,sleep
     returning_status_value: goto_charge
     paused_state: paused
@@ -36,6 +36,24 @@
     id: '23'
     platform: sensor
     icon: ''
+- sensor:
+    friendly_name: Tiempo de limpieza
+    entity_category: None
+    unit_of_measurement: min
+    state_class: measurement
+    id: '16'
+    platform: sensor
+    icon: ''
+
+- sensor:
+    friendly_name: Área limpiada
+    entity_category: None
+    unit_of_measurement: m²
+    device_class: area
+    state_class: measurement
+    id: '17'
+    platform: sensor
+    icon: ''    
 - binary_sensor:
     friendly_name: Cargando
     entity_category: diagnostic
