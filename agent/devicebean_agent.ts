@@ -13,10 +13,27 @@ if (!Java.available) {
           try {
             const deviceId = String(d.getDevId() || "");
             const localKey = String(d.getLocalKey() || "");
-            const name = String(d.getName() || "");
+            let name = "";
+            let mac = "";
+            let ip = "";
+            try {
+              name = String(d.getName() || "");
+            } catch (_) {
+              name = "";
+            }
+            try {
+              mac = String(d.getMac() || "");
+            } catch (_) {
+              mac = "";
+            }
+            try {
+              ip = String(d.getIp() || "");
+            } catch (_) {
+              ip = "";
+            }
             if (deviceId && localKey && !seen.has(deviceId)) {
               seen.add(deviceId);
-              send({ type: "device", name, device_id: deviceId, local_key: localKey });
+              send({ type: "device", name, device_id: deviceId, local_key: localKey, mac, ip });
             }
           } catch (_) {
             // An invalid/partially finalized heap object is ignored.

@@ -160,6 +160,8 @@ def extract(serial: str, pid: int, address: str | None, timeout: float) -> list[
                         "name": str(payload.get("name", "")),
                         "device_id": did,
                         "local_key": str(payload.get("local_key", "")),
+                        "mac": str(payload.get("mac", "")),
+                        "ip": str(payload.get("ip", "")),
                     }
                 elif payload.get("type") == "error":
                     errors.append(str(payload.get("error")))

@@ -223,13 +223,17 @@ Ejemplo con valores ficticios seguros:
   {
     "name": "Robot Vacuum",
     "device_id": "xxxxxxxxxxxxxxxxxxxxxx",
-    "local_key": "xxxxxxxxxxxxxxxx"
+    "local_key": "xxxxxxxxxxxxxxxx",
+    "mac": "e82f126407d4",
+    "ip": "192.168.1.123"
   }
 ]
 ```
 
 - El Device ID procede del `DeviceBean` de Lefant/ThingClips.
 - La Local Key es material sensible utilizado para la autenticación local.
+- La dirección MAC se extrae del `DeviceBean` cuando ese valor está disponible. Se escribe tal cual la devuelve el getter y puede quedar vacía en algunos modelos.
+- La IP se extrae de `DeviceBean.getIp()` cuando ese valor está disponible. Se escribe tal cual la devuelve el getter y puede quedar vacía o desactualizada; no se asume que sea una dirección LAN fiable. Si falta o está desfasada, la IP puede obtenerse desde las concesiones DHCP del router, el descubrimiento de LocalTuya o TinyTuya.
 - `devices.json` está ignorado por Git.
 - No publiques Local Keys ni Device IDs privados innecesariamente.
 

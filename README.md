@@ -221,13 +221,17 @@ Example with safe placeholder values:
   {
     "name": "Robot Vacuum",
     "device_id": "xxxxxxxxxxxxxxxxxxxxxx",
-    "local_key": "xxxxxxxxxxxxxxxx"
+    "local_key": "xxxxxxxxxxxxxxxx",
+    "mac": "e82f126407d4",
+    "ip": "192.168.1.123"
   }
 ]
 ```
 
 - Device ID comes from the Lefant/ThingClips `DeviceBean`.
 - Local Key is sensitive local authentication material.
+- MAC address is exported from `DeviceBean` when that value is available. It is written exactly as returned and may be empty on some models.
+- IP is exported from `DeviceBean.getIp()` when that value is available. It is written exactly as returned and may be empty or stale; it is not assumed to be a reliable LAN address. If it is missing or outdated, the IP can be obtained from the router/DHCP leases, LocalTuya discovery, or TinyTuya.
 - `devices.json` is ignored by Git.
 - Never publish Local Keys or private Device IDs unnecessarily.
 
