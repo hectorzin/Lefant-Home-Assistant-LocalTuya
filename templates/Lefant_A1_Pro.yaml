@@ -1,0 +1,106 @@
+- switch:
+    id: "1"
+    friendly_name: "Purificador"
+    entity_category: None
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "switch"
+    icon: "mdi:air-purifier"
+
+- sensor:
+    id: "2"
+    friendly_name: "PM2.5"
+    entity_category: diagnostic
+    unit_of_measurement: "µg/m³"
+    device_class: "pm25"
+    state_class: "measurement"
+    platform: "sensor"
+    icon: "mdi:molecule"
+
+- select:
+    id: "3"
+    friendly_name: "Modo"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "select"
+    select_options:
+      auto: "Auto"
+      manual: "Manual"
+      sleep: "Sueño"
+    icon: "mdi:auto-mode"
+    
+- select:
+    id: "4"
+    friendly_name: "Velocidad"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "select"
+    select_options:
+      SPEED1: "1"
+      SPEED2: "2"
+      SPEED3: "3"
+      SPEED4: "4"
+      SPEED5: "5"
+      SPEED6: "6"
+    icon: "mdi:fan"
+    
+- sensor:
+    id: "5"
+    friendly_name: "Vida del filtro"
+    entity_category: diagnostic
+    unit_of_measurement: "%"
+    state_class: "measurement"
+    platform: "sensor"
+    icon: "mdi:air-filter"
+
+- switch:
+    id: "7"
+    friendly_name: "Bloqueo infantil"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "switch"
+    icon: "mdi:lock"
+
+- switch:
+    id: "8"
+    friendly_name: "Iluminación"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "switch"
+    icon: "mdi:lightbulb"
+
+- select:
+    id: "18"
+    friendly_name: "Cuenta atrás"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "select"
+    select_options:
+      cancel: "Apagado"
+      1H: "1 hora"
+      2H: "2 horas"
+      3H: "3 horas"
+      4H: "4 horas"
+      5H: "5 horas"
+      6H: "6 horas"
+      7H: "7 horas"
+      8H: "8 horas"
+      9H: "9 horas"
+      10H: "10 horas"
+      11H: "11 horas"
+      12H: "12 horas"
+    icon: "mdi:timer-outline"
+
+- switch:
+    id: "28"
+    friendly_name: "Rotación 360°"
+    entity_category: config
+    restore_on_reconnect: false
+    is_passive_entity: false
+    platform: "switch"
+    icon: "mdi:rotate-360"
